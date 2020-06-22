@@ -1,0 +1,32 @@
+{
+  "name": "azure-iot-manager",
+  "version": "1.0.0",
+  "description": "azure api wrapper, helping to create resources required to use Azure IoT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write \\\"lib/**/*.ts\\\" \\\"src/**/*.js\\\"",
+    "lint": "tslint -p tsconfig.json"
+  },
+  "keywords": [],
+  "author": "Arman Piloyan",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^2.0.5",
+    "tslint": "^6.1.2",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.9.5"
+  },
+  "dependencies": {
+    "@types/node": "^14.0.13",
+    "axios": "^0.19.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/armanpiloyan/azure-iot-manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/armanpiloyan/azure-iot-manager/issues"
+  },
+  "homepage": "https://github.com/armanpiloyan/azure-iot-manager#readme"
+}
