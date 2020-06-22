@@ -17,10 +17,6 @@ pids
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
-# Dependency directories
-./node_modules/
-
-
 # TypeScript cache
 *.tsbuildinfo
 
@@ -44,3 +40,4 @@ build/Release
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
+node_modules/
