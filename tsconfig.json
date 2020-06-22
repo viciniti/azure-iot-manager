@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "extends": ["tslint:recommended", "tslint-config-prettier"],
   /* Visit https://aka.ms/tsconfig.json to read more about this file */
 
     /* Basic Options */

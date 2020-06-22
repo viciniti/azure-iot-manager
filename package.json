@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write \\\"lib/**/*.ts\\\" \\\"src/**/*.js\\\"",
-    "lint": "tslint -p tsconfig.json"
+    "lint": "tslint -p tsconfig.json",
+    "watch:build": "tsc --watch"
   },
   "keywords": [],
   "author": "Arman Piloyan",

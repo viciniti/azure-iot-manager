@@ -41,3 +41,6 @@ build/Release
 .idea/modules.xml
 .idea/vcs.xml
 node_modules/
+
+*.js
+*.xml
