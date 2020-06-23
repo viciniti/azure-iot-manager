@@ -1,13 +1,12 @@
 import {Response} from "./Response";
 import {AuthenticationError} from "../errors/auth/AuthenticationError";
+import {Token} from "../types/Token";
 
 export class AuthResponse extends Response {
 
-    public token: string | null;
+    public token: Token | undefined;
 
-    public expiresInSeconds: number | null;
-
-    constructor(token: string | null, expiresInSeconds: number | null, error?: AuthenticationError) {
+    constructor(token: Token | undefined, error?: AuthenticationError) {
         if (!error) {
             super(true, "Successfully received token");
         } else {
@@ -15,7 +14,6 @@ export class AuthResponse extends Response {
         }
 
         this.token = token;
-        this.expiresInSeconds = expiresInSeconds;
     }
 
 }

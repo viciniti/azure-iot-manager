@@ -4,16 +4,13 @@ import {FailedToCreateResourceGroupError} from "../errors/resource-group/FailedT
 
 export class ResourceGroupManager {
 
-    private readonly token: string;
-
     private readonly subscriptionId: string;
 
     constructor(token: string, subscriptionId: string) {
-        this.token = token;
         this.subscriptionId = subscriptionId;
     }
 
-    public createResourceGroup = async (location: string, name: string): Promise<ResourceGroupResponse> => {
+    public createResourceGroup = async (location: string, name: string, token: string): Promise<ResourceGroupResponse> => {
         const body = {
             location
         };
@@ -21,7 +18,7 @@ export class ResourceGroupManager {
         const config = {
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.token}`
+                Authorization: `Bearer ${token}`
             }
         };
 
