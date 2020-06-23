@@ -1,7 +1,7 @@
-import {Response} from "../Response";
-import {ResourceGroupError} from "../../errors/error";
+import {Response} from "./Response";
+import { ResourceGroupError } from "../errors/resource-group/ResourceGroupError";
 
-export class CreateResourceGroupResponse extends Response {
+export class ResourceGroupResponse extends Response {
 
     public resourceGroupName: string
 
