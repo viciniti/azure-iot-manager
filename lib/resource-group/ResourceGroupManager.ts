@@ -1,16 +1,21 @@
 import axios from "axios";
 import {ResourceGroupResponse} from "../response-types/ResourceGroupResponse";
 import {FailedToCreateResourceGroupError} from "../errors/resource-group/FailedToCreateResourceGroupError";
+import {ClientAuthenticator} from "../auth/ClientAuthenticator";
 
 export class ResourceGroupManager {
 
-    private readonly subscriptionId: string;
+    readonly subscriptionId: string;
 
-    constructor(token: string, subscriptionId: string) {
+    readonly auth : ClientAuthenticator;
+
+
+    constructor(subscriptionId: string, auth: ClientAuthenticator) {
         this.subscriptionId = subscriptionId;
+        this.auth = auth;
     }
 
-    public createResourceGroup = async (location: string, name: string, token: string): Promise<ResourceGroupResponse> => {
+    public createResourceGroup = async (location: string, name: string): Promise<ResourceGroupResponse> => {
         const body = {
             location
         };
@@ -18,7 +23,7 @@ export class ResourceGroupManager {
         const config = {
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${await this.auth.getTokenCached()}`
             }
         };
 

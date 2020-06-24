@@ -6,8 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "tslint -p tsconfig.json",
-    "watch:build": "tsc --watch"
+    "watch:build": "tsc --watch",
+    "prepublish": "tsc --declaration"
   },
+  "types": "index.d.ts",
+  "main": "index.js",
   "keywords": [],
   "author": "Arman Piloyan",
   "license": "ISC",

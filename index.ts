@@ -1,3 +1,6 @@
-export * from "./lib/resource-group/ResourceGroupManager";
-export * from "./lib/iot-hub/IoTManager";
+import {Config} from "./lib/types/Config";
+import {AzureIoTManager} from "./lib/AzureIoTManager";
 
+export function init(config: Config) : AzureIoTManager {
+    return new AzureIoTManager(config);
+}

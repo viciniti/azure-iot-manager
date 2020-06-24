@@ -4,19 +4,21 @@ import {AuthenticationError} from "../errors/auth/AuthenticationError";
 import {Token} from "../types/Token";
 import qs from "qs";
 import axios from "axios";
+import { Authenticator } from "../interfaces/Authenticator";
+import {ClientConfig} from "../types/ClientConfig";
 
 
-export class Authenticator {
+export class ClientAuthenticator implements Authenticator {
 
-    private config: Config;
+    readonly config: ClientConfig;
 
     private token: Token | undefined;
 
-    constructor(config: Config) {
+    constructor(config: ClientConfig) {
         this.config = config;
     }
 
-    public getToken = async (): Promise<AuthResponse> => {
+    readonly getToken = async (): Promise<AuthResponse> => {
         const body = {
             grant_type: 'client_credentials',
             client_id: this.config.clientId,

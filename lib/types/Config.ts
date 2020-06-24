@@ -1,15 +1,12 @@
 export class Config {
 
-    public tenantId: string
-
     public clientId: string
 
-    public clientSecret: string
+    public subscriptionId: string
 
-    constructor(tenantId: string, clientId: string, clientSecret: string) {
-        this.tenantId = tenantId;
+    constructor(clientId: string, subscriptionId: string) {
         this.clientId = clientId;
-        this.clientSecret = clientSecret;
+        this.subscriptionId = subscriptionId;
     }
 
 }

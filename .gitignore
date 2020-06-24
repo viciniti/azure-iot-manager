@@ -44,3 +44,4 @@ node_modules/
 
 *.js
 *.xml
+*.d.ts
