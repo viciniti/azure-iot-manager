@@ -3,7 +3,6 @@ import {FailedToCreateResourceGroupError} from "../errors/resource-group/FailedT
 import {Authenticator} from "../interfaces/Authenticator";
 import {IoTHub} from "./IoTHub";
 import {FailedToCreateIoTHubError} from "../errors/iot-hub/FailedToCreateIoTHubError";
-import {IoTHubError} from "../errors/iot-hub/IoTHubError";
 import {ResourceGroupError} from "../errors/resource-group/ResourceGroupError";
 
 export class ResourceGroup {
@@ -14,11 +13,10 @@ export class ResourceGroup {
 
     public name : string | undefined;
 
-    private isMirrored: boolean
-
+    readonly isMirrored: boolean
 
     /**
-     * don't use this constructor, get ResourceGroup instance through init function
+     * don't use constructor for getting an instance
      */
     constructor(subscriptionId: string, auth: Authenticator, name?: string, isMirrored?: boolean) {
         this.subscriptionId = subscriptionId;
@@ -29,6 +27,18 @@ export class ResourceGroup {
 
     /**
      *
+     * use this factory, if you have existing resource group
+     *
+     * @param name
+     */
+    public initExisting = (name: string) => {
+        return new ResourceGroup(this.subscriptionId, this.auth, name, true)
+    }
+
+    /**
+     *
+     * use this factory for creating new resource group
+     *
      * @param location - code for desired location
      * @param name - name for the resource group
      * @returns new ResourceGroup instance
@@ -38,14 +48,17 @@ export class ResourceGroup {
             location
         };
 
+        const token = await this.auth.getTokenCached();
+
         const config = {
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${await this.auth.getTokenCached()}`
+                Authorization: `Bearer ${token}`
             }
         };
 
         let response;
+
         try {
             response = await axios.put(`https://management.azure.com/subscriptions/${this.subscriptionId}/resourcegroups/${name}?api-version=2019-10-01`, body, config);
             if (response.status >= 200 && response.status < 300) {
@@ -70,40 +83,11 @@ export class ResourceGroup {
      * @param name - iot-hub name
      */
     public createIoTHub = async (location: LocationCode, capacity: number, tier: TierCode, name: string): Promise<IoTHub> => {
-        const body = {
-            location,
-            sku: {
-                name: `${tier}-${name}`,
-                tier,
-                capacity
-            }
-        }
-
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${await this.auth.getTokenCached()}`
-            }
-        }
-
-        try {
-            if(this.isMirrored) {
-                const response = await axios.put(`https://management.azure.com/subscriptions/${this.subscriptionId}/resourcegroups/${this.name}/providers/Microsoft.devices/IotHubs/${name}?api-version=2016-02-03`, body, config);
-                if (response.status >= 200 && response.status < 300) {
-                    return new IoTHub(this.subscriptionId, this.auth, name, true);
-                } else {
-                    throw new FailedToCreateIoTHubError(response.status, response.data.error.message, this.name);
-                }
-            }else {
-                throw new FailedToCreateIoTHubError(500, 'Please, init resource group first', this.name);
-            }
-        } catch (e) {
-            if (e instanceof IoTHubError){
-                throw e;
-            }
-            throw new FailedToCreateIoTHubError(500, e.message, this.name);
+        const iotHub = new IoTHub(this.subscriptionId, this.auth);
+        if(this.isMirrored && this.name) {
+            return iotHub.init(location, capacity, tier, name, this.name);
+        }else {
+            throw  new FailedToCreateIoTHubError(500, 'Please create resource group first', '');
         }
     }
-
-
 }
