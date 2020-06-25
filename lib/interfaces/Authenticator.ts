@@ -1,5 +1,5 @@
-import {Config} from "../types/Config";
-import {AuthResponse} from "../response-types/AuthResponse";
+import {Config} from "../entities/Config";
+import {AuthResponse} from "../responses/AuthResponse";
 
 export interface Authenticator {
     config: Config

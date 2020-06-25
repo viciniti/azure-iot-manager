@@ -1,11 +1,11 @@
-import {Config} from "../types/Config";
-import {AuthResponse} from "../response-types/AuthResponse";
+import {Config} from "../entities/Config";
+import {AuthResponse} from "../responses/AuthResponse";
 import {AuthenticationError} from "../errors/auth/AuthenticationError";
-import {Token} from "../types/Token";
+import {Token} from "../entities/Token";
 import qs from "qs";
 import axios from "axios";
 import { Authenticator } from "../interfaces/Authenticator";
-import {ClientConfig} from "../types/ClientConfig";
+import {ClientConfig} from "../entities/ClientConfig";
 
 
 export class ClientAuthenticator implements Authenticator {

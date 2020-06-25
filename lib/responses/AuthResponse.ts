@@ -1,6 +1,6 @@
 import {Response} from "./Response";
 import {AuthenticationError} from "../errors/auth/AuthenticationError";
-import {Token} from "../types/Token";
+import {Token} from "../entities/Token";
 
 export class AuthResponse extends Response {
 
