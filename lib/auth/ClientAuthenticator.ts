@@ -1,9 +1,9 @@
 import {AuthenticationError} from "../errors/auth/AuthenticationError";
 import {Token} from "../entities/Token";
-import qs from "qs";
-import axios from "axios";
 import {Authenticator} from "../interfaces/Authenticator";
 import {ClientConfig} from "../entities/ClientConfig";
+import qs from "qs";
+import axios from "axios";
 
 
 export class ClientAuthenticator implements Authenticator {
