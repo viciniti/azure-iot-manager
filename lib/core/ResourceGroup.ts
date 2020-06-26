@@ -1,17 +1,18 @@
-import axios from "axios";
 import {FailedToCreateResourceGroupError} from "../errors/resource-group/FailedToCreateResourceGroupError";
 import {Authenticator} from "../interfaces/Authenticator";
 import {IoTHub} from "./IoTHub";
 import {FailedToCreateIoTHubError} from "../errors/iot-hub/FailedToCreateIoTHubError";
 import {ResourceGroupError} from "../errors/resource-group/ResourceGroupError";
+import axios from "axios";
+
 
 export class ResourceGroup {
 
+    readonly auth: Authenticator;
+
     readonly subscriptionId: string;
 
-    readonly auth : Authenticator;
-
-    public name : string | undefined;
+    public name: string;
 
     readonly isMirrored: boolean
 
@@ -21,7 +22,7 @@ export class ResourceGroup {
     constructor(subscriptionId: string, auth: Authenticator, name?: string, isMirrored?: boolean) {
         this.subscriptionId = subscriptionId;
         this.auth = auth;
-        this.name = name;
+        this.name = name || 'default';
         this.isMirrored = isMirrored || false;
     }
 
@@ -31,7 +32,7 @@ export class ResourceGroup {
      *
      * @param name
      */
-    public initExisting = (name: string) => {
+    public initExisting = (name: string): ResourceGroup => {
         return new ResourceGroup(this.subscriptionId, this.auth, name, true)
     }
 
@@ -67,13 +68,12 @@ export class ResourceGroup {
                 throw new FailedToCreateResourceGroupError(response.status, response.data.error.message);
             }
         } catch (e) {
-            if(e instanceof  ResourceGroupError){
+            if (e instanceof ResourceGroupError) {
                 throw e;
             }
             throw new FailedToCreateResourceGroupError(500, e.message);
         }
     }
-
 
     /**
      *
@@ -83,10 +83,10 @@ export class ResourceGroup {
      * @param name - iot-hub name
      */
     public createIoTHub = async (location: LocationCode, capacity: number, tier: TierCode, name: string): Promise<IoTHub> => {
-        const iotHub = new IoTHub(this.subscriptionId, this.auth);
-        if(this.isMirrored && this.name) {
+        if (this.isMirrored && this.name) {
+            const iotHub = new IoTHub(this.subscriptionId, this.auth);
             return iotHub.init(location, capacity, tier, name, this.name);
-        }else {
+        } else {
             throw  new FailedToCreateIoTHubError(500, 'Please create resource group first', '');
         }
     }

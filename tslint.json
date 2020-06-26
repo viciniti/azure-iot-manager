@@ -2,7 +2,7 @@
   "extends": "tslint:recommended",
   "rules": {
     "max-line-length": {
-      "options": [250]
+      "options": [260]
     },
     "interface-name" : [false, "never"],
     "new-parens": true,
@@ -17,7 +17,7 @@
   },
   "jsRules": {
     "max-line-length": {
-      "options": [300]
+      "options": [260]
     }
   }
 }

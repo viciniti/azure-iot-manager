@@ -1,22 +1,24 @@
 import {Authenticator} from "../interfaces/Authenticator";
-import axios from "axios";
 import {IoTHubError} from "../errors/iot-hub/IoTHubError";
 import {FailedToCreateIoTHubError} from "../errors/iot-hub/FailedToCreateIoTHubError";
+import {DPS} from "./DPS";
+import {DPSError} from "../errors/dps/DPSError";
+import axios from "axios";
 
 
 export class IoTHub {
 
+    readonly auth: Authenticator;
+
     readonly subscriptionId: string;
 
-    readonly auth: Authenticator;
+    public name: string;
 
     readonly resourceGroupName: string | undefined;
 
-    readonly isMirrored: boolean;
-
-    public name : string | undefined;
-
     public connectionString: string | undefined;
+
+    readonly isMirrored: boolean;
 
     /**
      * don't use constructor for getting an instance
@@ -24,7 +26,7 @@ export class IoTHub {
     constructor(subscriptionId: string, auth: Authenticator, name?: string, isMirrored?: boolean, resourceGroupName?: string) {
         this.subscriptionId = subscriptionId;
         this.auth = auth;
-        this.name = name;
+        this.name = name || 'default';
         this.resourceGroupName = resourceGroupName;
         this.isMirrored = isMirrored || false;
     }
@@ -70,14 +72,14 @@ export class IoTHub {
         }
 
         try {
-                const response = await axios.put(`https://management.azure.com/subscriptions/${this.subscriptionId}/resourcegroups/${resourceGroupName}/providers/Microsoft.devices/IotHubs/${name}?api-version=2016-02-03`, body, config);
-                if (response.status >= 200 && response.status < 300) {
-                    return new IoTHub(this.subscriptionId, this.auth, name, true, resourceGroupName);
-                } else {
-                    throw new FailedToCreateIoTHubError(response.status, response.data.error.message, this.name);
-                }
+            const response = await axios.put(`https://management.azure.com/subscriptions/${this.subscriptionId}/resourcegroups/${resourceGroupName}/providers/Microsoft.devices/IotHubs/${name}?api-version=2016-02-03`, body, config);
+            if (response.status >= 200 && response.status < 300) {
+                return new IoTHub(this.subscriptionId, this.auth, name, true, resourceGroupName);
+            } else {
+                throw new FailedToCreateIoTHubError(response.status, response.data.error.message, this.name);
+            }
         } catch (e) {
-            if (e instanceof IoTHubError){
+            if (e instanceof IoTHubError) {
                 throw e;
             }
             throw new FailedToCreateIoTHubError(500, e.message, this.name);
@@ -85,32 +87,54 @@ export class IoTHub {
     }
 
     /**
-     * receive iot-hub connection string
+     * generates connection string, sets as instance property and returns as a response
      */
-    public generateConnectionString = async () => {
-        const config = {
-            headers: {
-                'Content-Length': 0,
-                Authorization: `Bearer ${await this.auth.getTokenCached()}`
-            }
-        };
+    public generateConnectionString = async (): Promise<string | undefined> => {
+        if (this.isMirrored) {
+            const config = {
+                headers: {
+                    'Content-Length': 0,
+                    Authorization: `Bearer ${await this.auth.getTokenCached()}`
+                }
+            };
 
-        try {
-            if(this.isMirrored) {
+            try {
+
                 const response = await axios.post(`https://management.azure.com/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroupName}/providers/Microsoft.Devices/IotHubs/${this.name}/IotHubKeys/iothubowner/listkeys?api-version=2018-04-01`, null, config);
                 if (response.status >= 200 && response.status < 300) {
                     this.connectionString = `HostName=${this.name}.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=${response.data.primaryKey}`;
+                    return this.connectionString;
                 } else {
                     throw new IoTHubError(response.status, response.data.error.message, this.resourceGroupName);
                 }
-            }else {
-              throw new IoTHubError(500, 'Please, make sure that IoT Hub instance exists', this.resourceGroupName);
+
+            } catch (e) {
+                if (e instanceof IoTHubError) {
+                    throw e;
+                }
+                throw new IoTHubError(500, e.message, this.resourceGroupName);
             }
-        }catch (e) {
-            if(e instanceof IoTHubError){
-                throw e;
+        } else {
+            throw new IoTHubError(500, 'Please, make sure that IoT Hub instance exists', this.resourceGroupName);
+        }
+    }
+
+    /**
+     *
+     * @param location - desired location
+     * @param tier - tier for the DPS instance
+     * @param capacity -device capacity
+     * @param name - desired name
+     */
+    public createDPS = async (location: LocationCode, tier: TierCode, capacity: number, name: string): Promise<DPS> => {
+        if (this.isMirrored && this.resourceGroupName && this.name && this.connectionString) {
+            const dps = new DPS(this.subscriptionId, this.auth);
+            return dps.init(this.connectionString, location, tier, capacity, this.resourceGroupName, this.name, name);
+        } else {
+            if (!this.connectionString) {
+                throw new DPSError(500, 'Please, generate connection string', name, this.resourceGroupName, this.name);
             }
-            throw new IoTHubError(500, e.message, this.resourceGroupName);
+            throw new DPSError(500, 'Please, create IoT hub instance first', name, this.resourceGroupName, this.name);
         }
     }
 }
