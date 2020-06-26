@@ -1,8 +1,8 @@
 import {Config} from "../entities/Config";
-import {AuthResponse} from "../responses/AuthResponse";
+import {Token} from "../entities/Token";
 
 export interface Authenticator {
     config: Config
-    getToken: () => Promise<AuthResponse>
+    getToken: () => Promise<Token>
     getTokenCached: () => Promise<string|undefined>
 }
