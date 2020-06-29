@@ -36,15 +36,15 @@ export class ClientAuthenticator implements Authenticator {
         try {
             const response = await axios.post(`https://login.microsoftonline.com/${this.config.tenantId}/oauth2/token`, qs.stringify(body), config);
             if (response.status >= 200 && response.status < 300) {
-                return new Token(response.data.access_token, Date.now() + response.data.expires_in);
+                return new Token(response.data.access_token, response.data.expires_on);
             } else {
-                throw new AuthenticationError(response.status, response.data.error.message);
+                throw new AuthenticationError(response.status, response.data.error, response.data.error_description);
             }
         } catch (e) {
             if (e instanceof AuthenticationError) {
                 throw e;
             }
-            throw new AuthenticationError(500, e.message);
+            throw new AuthenticationError(500, e.message, 'something went wrong');
         }
     }
 
@@ -53,13 +53,7 @@ export class ClientAuthenticator implements Authenticator {
      */
     public getTokenCached = async (): Promise<string | undefined> => {
         if (!this.token || (this.token && this.isExpired())) {
-            const token = await this.getToken();
-            if (token.accessToken) {
-                this.token = token;
-            } else {
-                // @ts-ignore
-                throw new AuthenticationError(500, authResponse.error.message);
-            }
+            this.token = await this.getToken();
         }
         return this.token?.accessToken;
     }
