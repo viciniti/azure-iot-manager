@@ -4,25 +4,33 @@
   "description": "azure api wrapper, helping to create resources required to use Azure IoT",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha -r ts-node/register tests/**/*.test.ts",
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test",
     "lint": "tslint -p tsconfig.json",
     "watch:build": "tsc --watch",
     "prepublish": "tsc --declaration"
   },
   "types": "index.d.ts",
-  "main": "index.js",
   "keywords": [],
   "author": "Arman Piloyan",
   "license": "ISC",
   "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "chai": "^4.2.0",
+    "mocha": "^8.0.1",
+    "nyc": "^15.1.0",
     "prettier": "^2.0.5",
+    "ts-node": "^8.10.2",
     "tslint": "^6.1.2",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.9.5"
   },
   "dependencies": {
+    "@types/faker": "^4.1.12",
     "@types/node": "^14.0.13",
     "@types/qs": "^6.9.3",
+    "@types/sinon": "^9.0.4",
     "axios": "^0.19.2"
   },
   "repository": {
