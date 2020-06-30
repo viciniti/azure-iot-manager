@@ -4,6 +4,7 @@ import {ClientConfig} from "./entities/ClientConfig";
 import {ClientAuthenticator} from "./auth/ClientAuthenticator";
 import {IoTHub} from "./core/IoTHub";
 import {DPS} from "./core/DPS";
+import {Requests} from "./services/Requests";
 
 export class AzureIoTManager {
 
@@ -15,10 +16,11 @@ export class AzureIoTManager {
 
     constructor(config: Config) {
         if(config instanceof ClientConfig){
-            const authenticator = new ClientAuthenticator(config);
-            this.ResourceGroup = new ResourceGroup(config.subscriptionId, authenticator);
-            this.IoTHub = new IoTHub(config.subscriptionId, authenticator);
-            this.DPS = new DPS(config.subscriptionId, authenticator);
+            const requests = new Requests(config);
+            const authenticator = new ClientAuthenticator(requests);
+            this.ResourceGroup = new ResourceGroup(config.subscriptionId, authenticator, requests);
+            this.IoTHub = new IoTHub(config.subscriptionId, authenticator, requests);
+            this.DPS = new DPS(config.subscriptionId, authenticator, requests);
         }
     }
 }

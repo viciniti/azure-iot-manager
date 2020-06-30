@@ -4,11 +4,14 @@ import {FailedToCreateIoTHubError} from "../errors/iot-hub/FailedToCreateIoTHubE
 import {DPS} from "./DPS";
 import {DPSError} from "../errors/dps/DPSError";
 import axios from "axios";
+import {Requests} from "../services/Requests";
 
 
 export class IoTHub {
 
     readonly auth: Authenticator;
+
+    readonly requests: Requests;
 
     readonly subscriptionId: string;
 
@@ -23,9 +26,10 @@ export class IoTHub {
     /**
      * don't use constructor for getting an instance
      */
-    constructor(subscriptionId: string, auth: Authenticator, name?: string, isMirrored?: boolean, resourceGroupName?: string) {
+    constructor(subscriptionId: string, auth: Authenticator, requests: Requests, name?: string, isMirrored?: boolean, resourceGroupName?: string) {
         this.subscriptionId = subscriptionId;
         this.auth = auth;
+        this.requests = requests;
         this.name = name || 'default';
         this.resourceGroupName = resourceGroupName;
         this.isMirrored = isMirrored || false;
@@ -39,7 +43,7 @@ export class IoTHub {
      * @param resourceGroupName
      */
     public initExisting = (name: string, resourceGroupName: string): IoTHub => {
-        return new IoTHub(this.subscriptionId, this.auth, name, true, resourceGroupName)
+        return new IoTHub(this.subscriptionId, this.auth, this.requests, name, true, resourceGroupName)
     }
 
     /**
@@ -74,7 +78,7 @@ export class IoTHub {
         try {
             const response = await axios.put(`https://management.azure.com/subscriptions/${this.subscriptionId}/resourcegroups/${resourceGroupName}/providers/Microsoft.devices/IotHubs/${name}?api-version=2016-02-03`, body, config);
             if (response.status >= 200 && response.status < 300) {
-                return new IoTHub(this.subscriptionId, this.auth, name, true, resourceGroupName);
+                return new IoTHub(this.subscriptionId, this.auth, this.requests, name, true, resourceGroupName);
             } else {
                 throw new FailedToCreateIoTHubError(response.status, response.data.error.message, this.name);
             }
@@ -128,7 +132,7 @@ export class IoTHub {
      */
     public createDPS = async (location: LocationCode, tier: TierCode, capacity: number, name: string): Promise<DPS> => {
         if (this.isMirrored && this.resourceGroupName && this.name && this.connectionString) {
-            const dps = new DPS(this.subscriptionId, this.auth);
+            const dps = new DPS(this.subscriptionId, this.auth, this.requests);
             return dps.init(this.connectionString, location, tier, capacity, this.resourceGroupName, this.name, name);
         } else {
             if (!this.connectionString) {

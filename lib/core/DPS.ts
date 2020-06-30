@@ -1,11 +1,14 @@
 import {Authenticator} from "../interfaces/Authenticator";
 import {DPSError} from "../errors/dps/DPSError";
 import axios from "axios";
+import {Requests} from "../services/Requests";
 
 
 export class DPS {
 
     readonly auth: Authenticator;
+
+    readonly requests: Requests;
 
     readonly subscriptionId: string;
 
@@ -24,9 +27,10 @@ export class DPS {
     /**
      * don't use constructor for getting an instance
      */
-    constructor(subscriptionId: string, auth: Authenticator, resourceGroupName?: string, iotHubName?: string, isMirrored?: boolean, name?: string) {
+    constructor(subscriptionId: string, auth: Authenticator, requests: Requests, resourceGroupName?: string, iotHubName?: string, isMirrored?: boolean, name?: string) {
         this.subscriptionId = subscriptionId;
         this.auth = auth;
+        this.requests = requests;
         this.name = name || 'default';
         this.resourceGroupName = resourceGroupName;
         this.iotHubName = iotHubName;
@@ -41,7 +45,7 @@ export class DPS {
      * @param resourceGroupName
      */
     public initExisting = (name: string, resourceGroupName: string, iotHubName: string): DPS => {
-        return new DPS(this.subscriptionId, this.auth, resourceGroupName, iotHubName, true, name);
+        return new DPS(this.subscriptionId, this.auth, this.requests, resourceGroupName, iotHubName, true, name);
     }
 
     /**
@@ -88,7 +92,7 @@ export class DPS {
         try {
             const response = await axios.put(`https://management.azure.com/subscriptions/${this.subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Devices/provisioningServices/${name}?api-version=2018-01-22`, body, config);
             if (response.status >= 200 && response.status < 300) {
-                return new DPS(this.subscriptionId, this.auth, resourceGroupName, iotHubName, true, name);
+                return new DPS(this.subscriptionId, this.auth, this.requests, resourceGroupName, iotHubName, true, name);
             } else {
                 throw new DPSError(response.status, response.data.error.message, resourceGroupName)
             }

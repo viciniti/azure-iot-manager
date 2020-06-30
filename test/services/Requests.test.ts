@@ -6,10 +6,10 @@ import axios from "axios";
 import qs from "qs";
 
 
-import {ClientAuthenticator} from '../../lib/auth/ClientAuthenticator';
 import {Token} from "../../lib/entities/Token";
 import {ClientConfig} from "../../lib/entities/ClientConfig";
 import {AuthenticationError} from "../../lib/errors/auth/AuthenticationError";
+import {Requests} from "../../lib/services/Requests";
 
 const expect = chai.expect
 chai.use(chaiAsPromised)
@@ -68,16 +68,17 @@ describe('authentication test', () => {
     it('get token', async () => {
         sinon.restore();
         sinon.stub(axios, 'post').withArgs(sinon.match(url), sinon.match(qs.stringify(body)), sinon.match.any).resolves(Promise.resolve(serverResponse));
-        const auth = new ClientAuthenticator(clientConfig);
-        const tokenResponse = await auth.getToken();
+        const request = new Requests(clientConfig);
+        const tokenResponse = await request.getClientToken();
+        console.log('a', tokenResponse);
         expect(tokenResponse).to.eql(expectedResponse);
     });
 
     it('get token errored', async () => {
         sinon.restore();
         sinon.stub(axios, 'post').withArgs(sinon.match(wrongUrl), sinon.match(qs.stringify(wrongBody)), sinon.match.any).resolves(Promise.resolve(serverErrorResponse));
-        const auth = new ClientAuthenticator(wrongClientConfig);
-        expect(auth.getToken()).to.eventually.be.rejectedWith('unauthorized_client').and.be.instanceOf(AuthenticationError).then((error)=>{
+        const request = new Requests(wrongClientConfig);
+        expect(request.getClientToken()).to.eventually.be.rejectedWith('unauthorized_client').and.be.instanceOf(AuthenticationError).then((error)=>{
             expect(error).to.have.property('description', serverErrorResponse.data.error_description);
             expect(error).to.have.property('code', 400);
         });
