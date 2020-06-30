@@ -2,6 +2,8 @@ import {Authenticator} from "../interfaces/Authenticator";
 import {DPSError} from "../errors/dps/DPSError";
 import axios from "axios";
 import {Requests} from "../services/Requests";
+import {LocationCode} from "../enums/LocationCode";
+import {TierCode} from "../enums/TierCode";
 
 
 export class DPS {

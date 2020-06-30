@@ -1,4 +1,4 @@
-enum LocationCode {
+export enum LocationCode {
     East_Asia = 'eastasia',
     Southeast_Asia = 'southeastasia',
     Central_US = 'centralus',

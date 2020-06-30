@@ -2,11 +2,15 @@ import axios from "axios";
 import qs from "qs";
 import {ClientConfig} from "../entities/ClientConfig";
 import {Token} from "../entities/Token";
-import {AuthenticationError} from "../errors/auth/AuthenticationError";
-
-
 import {RequestType} from "../enums/RequestType";
 import {ContentType} from "../enums/ContentType";
+
+import {AuthenticationError} from "../errors/auth/AuthenticationError";
+import {FailedToCreateResourceGroupError} from "../errors/resource-group/FailedToCreateResourceGroupError";
+import {LocationCode} from "../enums/LocationCode";
+
+
+
 
 export class Requests {
 
@@ -44,6 +48,33 @@ export class Requests {
 
     /**
      *
+     * @param token - client jwt token
+     * @param location - resource group location
+     * @param name - resource group name
+     */
+    public createResourceGroup = async (token: string, location: LocationCode, name: string) : Promise<any> => {
+
+        const body = {
+            location
+        };
+
+        const response = await this.makeRequest(
+            RequestType.PUT,
+            ContentType.JSON,
+            `https://management.azure.com/subscriptions/${this.config.subscriptionId}/resourcegroups/${name}?api-version=2019-10-01`,
+            body,
+            token
+        );
+
+        if (response.status >= 200 && response.status < 300) {
+            return response.data;
+        } else {
+            throw new FailedToCreateResourceGroupError(response.status, response.data.error.code, response.data.error.message);
+        }
+    }
+
+    /**
+     *
      * @param requestType - corresponding request Type
      * @param contentType - content type header
      * @param url - url of the request
@@ -68,7 +99,6 @@ export class Requests {
                 }
             }
         }
-
         // @ts-ignore
         return requestType === RequestType.GET ? await requestFunction(url, config) : await requestFunction(url, qs.stringify(body), config);
     }

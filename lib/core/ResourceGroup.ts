@@ -3,8 +3,9 @@ import {Authenticator} from "../interfaces/Authenticator";
 import {IoTHub} from "./IoTHub";
 import {FailedToCreateIoTHubError} from "../errors/iot-hub/FailedToCreateIoTHubError";
 import {ResourceGroupError} from "../errors/resource-group/ResourceGroupError";
-import axios from "axios";
 import {Requests} from "../services/Requests";
+import {TierCode} from "../enums/TierCode";
+import {LocationCode} from "../enums/LocationCode";
 
 
 export class ResourceGroup {
@@ -49,33 +50,20 @@ export class ResourceGroup {
      * @returns new ResourceGroup instance
      */
     public init = async (location: LocationCode, name: string): Promise<ResourceGroup> => {
-        const body = {
-            location
-        };
-
-        const token = await this.auth.getTokenCached();
-
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-            }
-        };
-
-        let response;
-
         try {
-            response = await axios.put(`https://management.azure.com/subscriptions/${this.subscriptionId}/resourcegroups/${name}?api-version=2019-10-01`, body, config);
-            if (response.status >= 200 && response.status < 300) {
-                return new ResourceGroup(this.subscriptionId, this.auth, this.requests, name, true);
+            const token = await this.auth.getTokenCached();
+
+            if (token) {
+                await this.requests.createResourceGroup(token, location, name);
             } else {
-                throw new FailedToCreateResourceGroupError(response.status, response.data.error.message);
+                throw new FailedToCreateResourceGroupError(401, 'No token available', 'authorization token is missing');
             }
+            return new ResourceGroup(this.subscriptionId, this.auth, this.requests, name, true);
         } catch (e) {
             if (e instanceof ResourceGroupError) {
                 throw e;
             }
-            throw new FailedToCreateResourceGroupError(500, e.message);
+            throw new FailedToCreateResourceGroupError(500, e.message, '');
         }
     }
 

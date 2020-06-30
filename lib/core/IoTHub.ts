@@ -5,6 +5,8 @@ import {DPS} from "./DPS";
 import {DPSError} from "../errors/dps/DPSError";
 import axios from "axios";
 import {Requests} from "../services/Requests";
+import {TierCode} from "../enums/TierCode";
+import {LocationCode} from "../enums/LocationCode";
 
 
 export class IoTHub {
