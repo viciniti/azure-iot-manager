@@ -1,6 +1,13 @@
 export class IoTHubError extends Error {
-    constructor(public code: number,m: string, resourceGroupName?: string) {
+
+    public resourceGroupName?: string;
+
+    public description: string
+
+    constructor(public code: number,m: string, description: string, resourceGroupName?: string) {
         super(m);
+        this.description = description;
+        this.resourceGroupName = resourceGroupName;
         Object.setPrototypeOf(this, IoTHubError.prototype);
     }
     printStack() {

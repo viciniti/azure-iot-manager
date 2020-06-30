@@ -56,7 +56,7 @@ export class ResourceGroup {
             if (token) {
                 await this.requests.createResourceGroup(token, location, name);
             } else {
-                throw new FailedToCreateResourceGroupError(401, 'No token available', 'authorization token is missing');
+                throw new FailedToCreateResourceGroupError(401, `token-${token}`, 'no token received');
             }
             return new ResourceGroup(this.subscriptionId, this.auth, this.requests, name, true);
         } catch (e) {
