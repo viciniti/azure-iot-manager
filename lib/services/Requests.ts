@@ -10,6 +10,7 @@ import {LocationCode} from "../enums/LocationCode";
 import {TierCode} from "../enums/TierCode";
 import {FailedToCreateIoTHubError} from "../errors/iot-hub/FailedToCreateIoTHubError";
 import {IoTHubError} from "../errors/iot-hub/IoTHubError";
+import {DPSError} from "../errors/dps/DPSError";
 
 
 export class Requests {
@@ -134,6 +135,99 @@ export class Requests {
 
     /**
      *
+     * @param token - client jwt token
+     * @param location - desired location code
+     * @param iotHubConnectionString - iot hub connection string
+     * @param tier - tier
+     * @param capacity - dps capacity
+     * @param resourceGroupName - associated resource group name
+     * @param name - name for the dps
+     */
+    public createDPS = async (token: string, location: LocationCode, iotHubConnectionString: string, tier: TierCode, capacity: number, resourceGroupName: string, name: string): Promise<any> => {
+
+        const body = {
+            location,
+            type: 'Microsoft.Devices/ProvisioningServices',
+            properties: {
+                state: 'Active',
+                iotHubs: [
+                    {
+                        connectionString: iotHubConnectionString,
+                        location
+                    }
+                ],
+                allocationPolicy: 'Hashed'
+            },
+            sku: {
+                name: `${tier}-${name}`,
+                tier,
+                capacity
+            }
+        }
+
+        const response = await this.makeRequest(
+            RequestType.PUT,
+            ContentType.JSON,
+            `https://management.azure.com/subscriptions/${this.config.subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Devices/provisioningServices/${name}?api-version=2018-01-22`,
+            body,
+            token
+        )
+        if (response.status >= 200 && response.status < 300) {
+            return response.data;
+        } else {
+            throw new DPSError(response.status, response.data.code, response.data.message, name, resourceGroupName, iotHubConnectionString.substr(8, iotHubConnectionString.length - 101));
+        }
+    }
+
+    /**
+     *
+     * @param token - client jwt token
+     * @param resourceGroupName - resource group name
+     * @param dpsName - dps instance name
+     */
+    public getDPSScopeID = async (token: string, resourceGroupName: string, dpsName: string): Promise<string> => {
+
+        const response = await this.makeRequest(
+            RequestType.GET,
+            ContentType.JSON,
+            `https://management.azure.com/subscriptions/${this.config.subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Devices/provisioningServices/${dpsName}?api-version=2018-01-22`,
+            null,
+            token
+        )
+
+        if (response.status >= 200 && response.status < 300) {
+            return response.data.properties.idScope;
+        } else {
+            throw new DPSError(response.status, response.data.error.code, response.data.error.message, name, resourceGroupName, '');
+        }
+    }
+
+    /**
+     *
+     * @param token - client jwt token
+     * @param resourceGroupName - associated resource group name
+     * @param dpsName - dps instance name
+     */
+    public getDPSConnectionString = async (token: string, resourceGroupName: string, dpsName: string): Promise<string> => {
+
+        const response = await this.makeRequest(
+            RequestType.POST,
+            ContentType.EMPTY,
+            `https://management.azure.com/subscriptions/${this.config.subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Devices/provisioningServices/${dpsName}/keys/provisioningserviceowner/listkeys?api-version=2018-01-22`,
+            null,
+            token
+        )
+
+        if (response.status >= 200 && response.status < 300) {
+            return `HostName=${name}.azure-devices-provisioning.net;SharedAccessKeyName=provisioningserviceowner;SharedAccessKey=${response.data.primaryKey}`
+        } else {
+            throw new DPSError(response.status, response.data.code, response.data.message, dpsName, resourceGroupName, '')
+        }
+    }
+
+
+    /**
+     *
      * @param requestType - corresponding request Type
      * @param contentType - content type header
      * @param url - url of the request
@@ -151,6 +245,13 @@ export class Requests {
                     Authorization: `Bearer ${token}`
                 }
             };
+            if (requestType === RequestType.GET) {
+                config = {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            }
         } else if (token) {
             config = {
                 headers: {

@@ -93,7 +93,7 @@ export class IoTHub {
                 if (e instanceof IoTHubError) {
                     throw e;
                 }
-                throw new IoTHubError(500, e.message,'', this.resourceGroupName);
+                throw new IoTHubError(500, e.message, '', this.resourceGroupName);
             }
         } else {
             throw new IoTHubError(500, 'Please, make sure that IoT Hub instance exists', 'no instance', this.resourceGroupName);
@@ -113,9 +113,9 @@ export class IoTHub {
             return dps.init(this.connectionString, location, tier, capacity, this.resourceGroupName, this.name, name);
         } else {
             if (!this.connectionString) {
-                throw new DPSError(500, 'Please, generate connection string', name, this.resourceGroupName, this.name);
+                throw new DPSError(500, 'Please, generate connection string', 'missing IoTHub connection string', name, this.resourceGroupName, this.name);
             }
-            throw new DPSError(500, 'Please, create IoT hub instance first', name, this.resourceGroupName, this.name);
+            throw new DPSError(500, 'Please, create IoT hub instance first', 'no IoT hub instance', name, this.resourceGroupName, this.name);
         }
     }
 }
