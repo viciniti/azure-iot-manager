@@ -1,4 +1,3 @@
-import axios from "axios";
 import {Authenticator} from "../interfaces/Authenticator";
 import {DPSError} from "../errors/dps/DPSError";
 import {Requests} from "../services/Requests";
