@@ -104,7 +104,8 @@ export class Requests {
         if (response.status >= 200 && response.status < 300) {
             return response.data;
         } else {
-            throw new FailedToCreateIoTHubError(response.status, response.data.error.code, response.data.error.message, resourceGroupName);
+            // as you noticed, Code and Message attributes are capitalized as responses returned from Microsoft.devices have capitalized keys (which is not the case for the rest of resources :) )
+            throw new FailedToCreateIoTHubError(response.status, response.data.Code, response.data.Message, resourceGroupName);
         }
     }
 
@@ -114,19 +115,19 @@ export class Requests {
      * @param resourceGroupName - associated resource group name
      * @param iotHubName - hub name
      */
-    public getIoTHubConnectionString = async (token: string, resourceGroupName: string, iotHubName: string) : Promise<string> => {
+    public getIoTHubConnectionString = async (token: string, resourceGroupName: string, iotHubName: string): Promise<string> => {
 
         const response = await this.makeRequest(
             RequestType.POST,
             ContentType.EMPTY,
             `https://management.azure.com/subscriptions/${this.config.subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Devices/IotHubs/${iotHubName}/IotHubKeys/iothubowner/listkeys?api-version=2018-04-01`,
-        null,
+            null,
             token
         )
 
         if (response.status >= 200 && response.status < 300) {
             return `HostName=${iotHubName}.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=${response.data.primaryKey}`;
-        }else {
+        } else {
             throw new IoTHubError(response.status, response.data.error.code, response.data.error.message, resourceGroupName);
         }
     }
@@ -143,17 +144,17 @@ export class Requests {
         const requestFunction = axios[requestType];
         let config;
 
-        if (token) {
-            config = {
-                headers: {
-                    'Content-Type': contentType,
-                    Authorization: `Bearer ${token}`
-                }
-            };
-        } else if (body === null) {
+        if (body === null) {
             config = {
                 headers: {
                     'Content-Length': 0,
+                    Authorization: `Bearer ${token}`
+                }
+            };
+        } else if (token) {
+            config = {
+                headers: {
+                    'Content-Type': contentType,
                     Authorization: `Bearer ${token}`
                 }
             };
