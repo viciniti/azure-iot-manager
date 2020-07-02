@@ -1,1 +1,3 @@
-[![Coverage Status](https://coveralls.io/repos/<account>/<repository>/badge.svg?branch=master)](https://coveralls.io/r/<account>/<repository>?branch=master)
+#Azure IoT manager
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
