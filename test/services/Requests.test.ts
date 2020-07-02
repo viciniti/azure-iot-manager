@@ -83,7 +83,7 @@ describe('requests test', () => {
 
     it('get token errored', async () => {
         sinon.restore();
-        sinon.stub(axios, 'post').withArgs(sinon.match(wrongUrl), sinon.match(qs.stringify(wrongBody)), sinon.match.any).resolves(Promise.resolve(serverErrorResponse));
+        sinon.stub(axios, 'post').withArgs(sinon.match(wrongUrl), sinon.match(wrongBody), sinon.match.any).resolves(Promise.resolve(serverErrorResponse));
         const request = new Requests(wrongClientConfig);
         expect(request.getClientToken()).to.eventually.be.rejectedWith('unauthorized_client').and.be.instanceOf(AuthenticationError).then((error) => {
             expect(error).to.have.property('description', serverErrorResponse.data.error_description);
@@ -119,7 +119,7 @@ describe('requests test', () => {
 
     it('create resource group', async () => {
         sinon.restore();
-        sinon.stub(axios, 'put').withArgs(sinon.match(resourceGroupURL), sinon.match(qs.stringify(resourceGroupBody)), sinon.match(requestConfig)).resolves(Promise.resolve(resourceGroupResponse));
+        sinon.stub(axios, 'put').withArgs(sinon.match(resourceGroupURL), sinon.match(resourceGroupBody), sinon.match(requestConfig)).resolves(Promise.resolve(resourceGroupResponse));
         const request = new Requests(clientConfig);
         const response = await request.createResourceGroup(accessToken, LocationCode.Central_India, 'testGroup');
         expect(response).to.eql(resourceGroupResponse.data);
@@ -139,7 +139,7 @@ describe('requests test', () => {
 
     it('create resource group errored', async () => {
         sinon.restore();
-        sinon.stub(axios, 'put').withArgs(sinon.match(wrongResourceGroupURL), sinon.match(qs.stringify(resourceGroupBody)), sinon.match(requestConfig)).resolves(Promise.resolve(erroredResourceGroupResponse))
+        sinon.stub(axios, 'put').withArgs(sinon.match(wrongResourceGroupURL), sinon.match(resourceGroupBody), sinon.match(requestConfig)).resolves(Promise.resolve(erroredResourceGroupResponse))
         const request = new Requests(wrongClientConfig);
         expect(request.createResourceGroup(accessToken, LocationCode.Central_India, 'testGroup')).to.eventually.be.rejectedWith('SubscriptionNotFound').and.be.instanceOf(ResourceGroupError).then((error) => {
             expect(error).to.have.property('description', erroredResourceGroupResponse.data.error.message);
@@ -173,7 +173,7 @@ describe('requests test', () => {
 
     it('create iot hub', async () => {
         sinon.restore();
-        sinon.stub(axios, 'put').withArgs(sinon.match(createHubUrl), sinon.match(qs.stringify(hubBody)), sinon.match(requestConfig)).resolves(Promise.resolve(hubResponse));
+        sinon.stub(axios, 'put').withArgs(sinon.match(createHubUrl), sinon.match(hubBody), sinon.match(requestConfig)).resolves(Promise.resolve(hubResponse));
         const request = new Requests(clientConfig);
         const response = await request.createIoTHub(accessToken, LocationCode.Central_India, 1, TierCode.Free, 'testHub', 'testGroup');
         expect(response).to.eql(hubResponse.data);
@@ -201,7 +201,7 @@ describe('requests test', () => {
     it('create iot hub errored', async () => {
         sinon.restore();
         sinon.stub();
-        sinon.stub(axios, 'put').withArgs(sinon.match(createHubUrl), sinon.match(qs.stringify(erroredBody)), sinon.match(requestConfig)).resolves(Promise.resolve(erroredHubResponse));
+        sinon.stub(axios, 'put').withArgs(sinon.match(createHubUrl), sinon.match(erroredBody), sinon.match(requestConfig)).resolves(Promise.resolve(erroredHubResponse));
         const request = new Requests(clientConfig);
         expect(request.createIoTHub(accessToken, LocationCode.Central_India, 2, TierCode.Free, 'testHub', 'testGroup')).to.eventually.be.rejectedWith('ProvisionedUnitsOutOfRange').and.be.instanceOf(IoTHubError).then((error) => {
             expect(error).to.have.property('description', erroredHubResponse.data.Message);
@@ -234,7 +234,7 @@ describe('requests test', () => {
 
     it('get iot hub connection string', async () => {
         sinon.restore();
-        sinon.stub(axios, 'post').withArgs(sinon.match(iotHubConnectionStringURL), sinon.match(qs.stringify(null)), sinon.match(connectionStringRequestConfig)).resolves(Promise.resolve(connectionStringResponse));
+        sinon.stub(axios, 'post').withArgs(sinon.match(iotHubConnectionStringURL), null, sinon.match(connectionStringRequestConfig)).resolves(Promise.resolve(connectionStringResponse));
         const request = new Requests(clientConfig);
         const response = await request.getIoTHubConnectionString(accessToken, 'testGroup', 'testHub');
         expect(response).to.be.eql(expectedConnectionString);
@@ -297,7 +297,7 @@ describe('requests test', () => {
 
     it('create dps', async () => {
         sinon.restore();
-        sinon.stub(axios, 'put').withArgs(sinon.match(createDPSURL), sinon.match(qs.stringify(createDPSBody)), sinon.match(requestConfig)).resolves(Promise.resolve(dpsResponse));
+        sinon.stub(axios, 'put').withArgs(sinon.match(createDPSURL), sinon.match(createDPSBody), sinon.match(requestConfig)).resolves(Promise.resolve(dpsResponse));
         const request = new Requests(clientConfig);
         const response = await request.createDPS(accessToken, LocationCode.Central_India, iotHubConnectionString, TierCode.Free, 1, 'testGroup', 'testDPS');
         expect(response).to.be.eql(dpsResponse.data);
@@ -336,7 +336,7 @@ describe('requests test', () => {
 
     it('create dps errored', async () => {
         sinon.restore();
-        sinon.stub(axios, 'put').withArgs(sinon.match(createDPSURL), sinon.match(qs.stringify(wrongCreateDPSBody)), sinon.match(requestConfig)).resolves(Promise.resolve(dpsErrorResponse));
+        sinon.stub(axios, 'put').withArgs(sinon.match(createDPSURL), sinon.match(wrongCreateDPSBody), sinon.match(requestConfig)).resolves(Promise.resolve(dpsErrorResponse));
         const request = new Requests(clientConfig);
         expect(request.createDPS(accessToken, LocationCode.Central_India, wrongConnectionString, TierCode.Free, 1, 'testGroup', 'testDPS')).to.eventually.be.rejectedWith('BadRequest').and.be.instanceOf(DPSError).then((error) => {
             expect(error).to.have.property('description', dpsErrorResponse.data.message);
@@ -438,7 +438,7 @@ describe('requests test', () => {
 
     it('get dps connection string ', async () => {
         sinon.restore();
-        sinon.stub(axios, 'post').withArgs(sinon.match(dpsConnectionStringURL), sinon.match(qs.stringify(null)), sinon.match(connectionStringRequestConfig)).resolves(Promise.resolve(dpsConnectionStringServerResponse));
+        sinon.stub(axios, 'post').withArgs(sinon.match(dpsConnectionStringURL), null, sinon.match(connectionStringRequestConfig)).resolves(Promise.resolve(dpsConnectionStringServerResponse));
         const request = new Requests(clientConfig);
         const response = await request.getDPSConnectionString(accessToken, 'testGroup', 'testDPS');
         expect(response).to.be.eql(dpsConnectionString);
@@ -457,7 +457,7 @@ describe('requests test', () => {
 
     it('get dps connection string errored ', async () => {
         sinon.restore();
-        sinon.stub(axios, 'post').withArgs(sinon.match(wrongDpsConnectionStringURL), sinon.match(qs.stringify(null)), sinon.match(connectionStringRequestConfig)).resolves(Promise.resolve(dpsServerConnectionStringErrorResponse));
+        sinon.stub(axios, 'post').withArgs(sinon.match(wrongDpsConnectionStringURL), null, sinon.match(connectionStringRequestConfig)).resolves(Promise.resolve(dpsServerConnectionStringErrorResponse));
         const request = new Requests(clientConfig);
         expect(request.getDPSConnectionString(accessToken, wrongResourceGroupName, 'testDPS')).to.eventually.be.rejectedWith('ResourceGroupNotFound').and.be.instanceOf(DPSError).then((error) => {
             expect(error).to.have.property('description', dpsServerConnectionStringErrorResponse.data.message);

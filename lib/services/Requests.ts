@@ -37,7 +37,7 @@ export class Requests {
             RequestType.POST,
             ContentType.URLENCODED,
             `https://login.microsoftonline.com/${this.config.tenantId}/oauth2/token`,
-            body
+            qs.stringify(body)
         );
 
         if (response.status >= 200 && response.status < 300) {
@@ -266,6 +266,6 @@ export class Requests {
             }
         }
         // @ts-ignore
-        return requestType === RequestType.GET ? await requestFunction(url, config) : await requestFunction(url, qs.stringify(body), config);
+        return requestType === RequestType.GET ? await requestFunction(url, config) : await requestFunction(url, body, config);
     }
 }

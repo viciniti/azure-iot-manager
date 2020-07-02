@@ -60,6 +60,7 @@ export class ResourceGroup {
             }
             return new ResourceGroup(this.subscriptionId, this.auth, this.requests, name, true);
         } catch (e) {
+            console.log(e);
             if (e instanceof ResourceGroupError) {
                 throw e;
             }

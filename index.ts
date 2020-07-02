@@ -1,6 +1,7 @@
-import {Config} from "./lib/entities/Config";
-import {AzureIoTManager} from "./lib/AzureIoTManager";
+import {Manager} from "./lib/Manager";
 
-export function init(config: Config) : AzureIoTManager {
-    return new AzureIoTManager(config);
+const toExport = {
+    manager: Manager
 }
+
+export = toExport;
