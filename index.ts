@@ -1,7 +1,12 @@
 import {Manager} from "./lib/Manager";
+import {ClientConfig} from "./lib/entities/ClientConfig";
 
 const toExport = {
-    manager: Manager
+    init
+}
+
+function init(config: ClientConfig) {
+    return new Manager(config);
 }
 
 export = toExport;
