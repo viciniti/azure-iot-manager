@@ -175,7 +175,7 @@ export class Requests {
         if (response.status >= 200 && response.status < 300) {
             return response.data;
         } else {
-            throw new DPSError(response.status, response.data.code, response.data.message, name, resourceGroupName, iotHubConnectionString.substr(8, iotHubConnectionString.length - 101));
+            throw new DPSError(response.status, response.data.httpStatusCode, response.data.message, name, resourceGroupName, iotHubConnectionString.substr(8, iotHubConnectionString.length - 101));
         }
     }
 
@@ -194,11 +194,10 @@ export class Requests {
             null,
             token
         )
-
         if (response.status >= 200 && response.status < 300) {
             return response.data.properties.idScope;
         } else {
-            throw new DPSError(response.status, response.data.error.code, response.data.error.message, name, resourceGroupName, '');
+            throw new DPSError(response.status, response.data.error.code, response.data.error.message, dpsName, resourceGroupName, '');
         }
     }
 
@@ -219,9 +218,9 @@ export class Requests {
         )
 
         if (response.status >= 200 && response.status < 300) {
-            return `HostName=${name}.azure-devices-provisioning.net;SharedAccessKeyName=provisioningserviceowner;SharedAccessKey=${response.data.primaryKey}`
+            return `HostName=${dpsName}.azure-devices-provisioning.net;SharedAccessKeyName=provisioningserviceowner;SharedAccessKey=${response.data.primaryKey}`
         } else {
-            throw new DPSError(response.status, response.data.code, response.data.message, dpsName, resourceGroupName, '')
+            throw new DPSError(response.status, response.data.httpStatusCode, response.data.message, dpsName, resourceGroupName, '')
         }
     }
 

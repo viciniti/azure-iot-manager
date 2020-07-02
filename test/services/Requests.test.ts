@@ -15,6 +15,7 @@ import {LocationCode} from "../../lib/enums/LocationCode";
 import {ResourceGroupError} from "../../lib/errors/resource-group/ResourceGroupError";
 import {TierCode} from "../../lib/enums/TierCode";
 import {IoTHubError} from "../../lib/errors/iot-hub/IoTHubError";
+import {DPSError} from "../../lib/errors/dps/DPSError";
 
 const expect = chai.expect
 chai.use(chaiAsPromised)
@@ -208,7 +209,7 @@ describe('requests test', () => {
         });
     });
 
-    const iotHubConnectionStringURL= `https://management.azure.com/subscriptions/${clientConfig.subscriptionId}/resourceGroups/testGroup/providers/Microsoft.Devices/IotHubs/testHub/IotHubKeys/iothubowner/listkeys?api-version=2018-04-01`;
+    const iotHubConnectionStringURL = `https://management.azure.com/subscriptions/${clientConfig.subscriptionId}/resourceGroups/testGroup/providers/Microsoft.Devices/IotHubs/testHub/IotHubKeys/iothubowner/listkeys?api-version=2018-04-01`;
 
     const primaryKey = faker.random.uuid();
 
@@ -233,11 +234,234 @@ describe('requests test', () => {
 
     it('get iot hub connection string', async () => {
         sinon.restore();
-        sinon.stub();
         sinon.stub(axios, 'post').withArgs(sinon.match(iotHubConnectionStringURL), sinon.match(qs.stringify(null)), sinon.match(connectionStringRequestConfig)).resolves(Promise.resolve(connectionStringResponse));
         const request = new Requests(clientConfig);
-        const response = await request.getIoTHubConnectionString(accessToken,'testGroup', 'testHub');
+        const response = await request.getIoTHubConnectionString(accessToken, 'testGroup', 'testHub');
         expect(response).to.be.eql(expectedConnectionString);
     });
 
+    const iotHubConnectionString = faker.random.alphaNumeric(100);
+
+    const createDPSBody = {
+        location: LocationCode.Central_India,
+        type: 'Microsoft.Devices/ProvisioningServices',
+        properties: {
+            state: 'Active',
+            iotHubs: [
+                {
+                    connectionString: iotHubConnectionString,
+                    location: LocationCode.Central_India
+                }
+            ],
+            allocationPolicy: 'Hashed'
+        },
+        sku: {
+            name: `${TierCode.Free}-testDPS`,
+            tier: TierCode.Free,
+            capacity: 1
+        }
+    }
+
+    const createDPSURL = `https://management.azure.com/subscriptions/${clientConfig.subscriptionId}/resourceGroups/testGroup/providers/Microsoft.Devices/provisioningServices/testDPS?api-version=2018-01-22`;
+
+    const dpsResponse = {
+        data: {
+            name: 'testDPS',
+            location: LocationCode.Central_India,
+            properties: {
+                state: 'Transitioning',
+                provisioningState: 'Accepted',
+                iotHubs: [
+                    {
+                        name: 'testHub',
+                        connectionString: iotHubConnectionString,
+                        location: LocationCode.Central_India
+                    }
+                ],
+                allocationPolicy: 'Hashed',
+                idScope: null
+            },
+            resourcegroup: 'testGroup',
+            type: 'Microsoft.Devices/provisioningServices',
+            id: faker.random.uuid(),
+            subscriptionid: faker.random.uuid(),
+            tags: {},
+            sku: {
+                name: `${TierCode.Free}-testDPS`,
+                tier: TierCode.Free,
+                capacity: 1
+            }
+        },
+        status: 201
+    }
+
+    it('create dps', async () => {
+        sinon.restore();
+        sinon.stub(axios, 'put').withArgs(sinon.match(createDPSURL), sinon.match(qs.stringify(createDPSBody)), sinon.match(requestConfig)).resolves(Promise.resolve(dpsResponse));
+        const request = new Requests(clientConfig);
+        const response = await request.createDPS(accessToken, LocationCode.Central_India, iotHubConnectionString, TierCode.Free, 1, 'testGroup', 'testDPS');
+        expect(response).to.be.eql(dpsResponse.data);
+    });
+
+    const wrongConnectionString = faker.random.uuid();
+
+    const wrongCreateDPSBody = {
+        location: LocationCode.Central_India,
+        type: 'Microsoft.Devices/ProvisioningServices',
+        properties: {
+            state: 'Active',
+            iotHubs: [
+                {
+                    connectionString: wrongConnectionString,
+                    location: LocationCode.Central_India
+                }
+            ],
+            allocationPolicy: 'Hashed'
+        },
+        sku: {
+            name: `${TierCode.Free}-testDPS`,
+            tier: TierCode.Free,
+            capacity: 1
+        }
+    }
+
+    const dpsErrorResponse = {
+        data: {
+            code: 400059,
+            httpStatusCode: "BadRequest",
+            message: faker.random.words(5)
+        },
+        status: 400
+    }
+
+    it('create dps errored', async () => {
+        sinon.restore();
+        sinon.stub(axios, 'put').withArgs(sinon.match(createDPSURL), sinon.match(qs.stringify(wrongCreateDPSBody)), sinon.match(requestConfig)).resolves(Promise.resolve(dpsErrorResponse));
+        const request = new Requests(clientConfig);
+        expect(request.createDPS(accessToken, LocationCode.Central_India, wrongConnectionString, TierCode.Free, 1, 'testGroup', 'testDPS')).to.eventually.be.rejectedWith('BadRequest').and.be.instanceOf(DPSError).then((error) => {
+            expect(error).to.have.property('description', dpsErrorResponse.data.message);
+            expect(error).to.have.property('code', 400);
+        });
+    });
+
+    const scopeIdURL = `https://management.azure.com/subscriptions/${clientConfig.subscriptionId}/resourceGroups/testGroup/providers/Microsoft.Devices/provisioningServices/testDPS?api-version=2018-01-22`;
+
+    const scopeIdHeader = {
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    }
+
+    const scopeId = faker.random.uuid();
+
+    const scopeIdServerResponse = {
+        data: {
+            etag: faker.random.words(1),
+            name: 'testDPS',
+            location: LocationCode.Central_India,
+            properties: {
+                state: 'Transitioning',
+                provisioningState: 'Accepted',
+                iotHubs: [
+                    {
+                        name: 'testHub',
+                        connectionString: iotHubConnectionString,
+                        location: LocationCode.Central_India
+                    }
+                ],
+                allocationPolicy: 'Hashed',
+                idScope: scopeId,
+                serviceOperationsHostName: "testDPS.azure-devices-provisioning.net",
+                deviceProvisioningHostName: 'global.azure-devices-provisioning.net',
+            },
+            resourcegroup: 'testGroup',
+            type: 'Microsoft.Devices/provisioningServices',
+            id: faker.random.uuid(),
+            subscriptionid: faker.random.uuid(),
+            tags: {},
+            sku: {
+                name: `${TierCode.Free}-testDPS`,
+                tier: TierCode.Free,
+                capacity: 1
+            }
+        },
+        status: 200
+    }
+
+    it('get scope id', async () => {
+        sinon.restore();
+        sinon.stub(axios, 'get').withArgs(sinon.match(scopeIdURL), sinon.match(scopeIdHeader)).resolves(Promise.resolve(scopeIdServerResponse));
+        const request = new Requests(clientConfig);
+        const response = await request.getDPSScopeID(accessToken, 'testGroup', 'testDPS');
+        expect(response).to.be.eql(scopeId);
+    });
+
+    const wrongResourceGroupName = 'testGroup1';
+
+    const dpsScopeIdErrorResponse = {
+        data: {
+            error: {
+                code: 'ResourceGroupNotFound',
+                message: `Resource group '${wrongResourceGroupName}' could not be found.`
+            }
+        },
+        status: 404
+    };
+
+    const wrongScopeIdURL = `https://management.azure.com/subscriptions/${clientConfig.subscriptionId}/resourceGroups/${wrongResourceGroupName}/providers/Microsoft.Devices/provisioningServices/testDPS?api-version=2018-01-22`;
+
+    it('get scope id errored', async () => {
+        sinon.restore();
+        sinon.stub(axios, 'get').withArgs(sinon.match(wrongScopeIdURL), sinon.match(scopeIdHeader)).resolves(Promise.resolve(dpsScopeIdErrorResponse));
+        const request = new Requests(clientConfig);
+        expect(request.getDPSScopeID(accessToken, wrongResourceGroupName, 'testDPS')).to.eventually.be.rejectedWith('ResourceGroupNotFound').and.be.instanceOf(DPSError).then((error) => {
+            expect(error).to.have.property('description', dpsScopeIdErrorResponse.data.error.message);
+            expect(error).to.have.property('code', 404);
+        });
+
+    });
+
+    const dpsConnectionStringURL = `https://management.azure.com/subscriptions/${clientConfig.subscriptionId}/resourceGroups/testGroup/providers/Microsoft.Devices/provisioningServices/testDPS/keys/provisioningserviceowner/listkeys?api-version=2018-01-22`;
+
+    const dpsPrimaryKey = faker.random.uuid();
+    const dpsConnectionString = `HostName=testDPS.azure-devices-provisioning.net;SharedAccessKeyName=provisioningserviceowner;SharedAccessKey=${dpsPrimaryKey}`
+
+    const dpsConnectionStringServerResponse = {
+        data: {
+            keyName: 'provisioningserviceowner',
+            primaryKey: dpsPrimaryKey,
+            secondaryKey: faker.random.uuid(),
+            rights: 'ServiceConfig, DeviceConnect, EnrollmentWrite'
+        },
+        status: 200
+    };
+
+    it('get dps connection string ', async () => {
+        sinon.restore();
+        sinon.stub(axios, 'post').withArgs(sinon.match(dpsConnectionStringURL), sinon.match(qs.stringify(null)), sinon.match(connectionStringRequestConfig)).resolves(Promise.resolve(dpsConnectionStringServerResponse));
+        const request = new Requests(clientConfig);
+        const response = await request.getDPSConnectionString(accessToken, 'testGroup', 'testDPS');
+        expect(response).to.be.eql(dpsConnectionString);
+    });
+
+    const wrongDpsConnectionStringURL = `https://management.azure.com/subscriptions/${clientConfig.subscriptionId}/resourceGroups/${wrongResourceGroupName}/providers/Microsoft.Devices/provisioningServices/testDPS/keys/provisioningserviceowner/listkeys?api-version=2018-01-22`
+
+    const dpsServerConnectionStringErrorResponse = {
+        data: {
+            code: 404001,
+            httpStatusCode: 'ResourceGroupNotFound',
+            message: `Resource group '${wrongResourceGroupName}' could not be found.`
+        },
+        status: 404
+    }
+
+    it('get dps connection string errored ', async () => {
+        sinon.restore();
+        sinon.stub(axios, 'post').withArgs(sinon.match(wrongDpsConnectionStringURL), sinon.match(qs.stringify(null)), sinon.match(connectionStringRequestConfig)).resolves(Promise.resolve(dpsServerConnectionStringErrorResponse));
+        const request = new Requests(clientConfig);
+        expect(request.getDPSConnectionString(accessToken, wrongResourceGroupName, 'testDPS')).to.eventually.be.rejectedWith('ResourceGroupNotFound').and.be.instanceOf(DPSError).then((error) => {
+            expect(error).to.have.property('description', dpsServerConnectionStringErrorResponse.data.message);
+            expect(error).to.have.property('code', 404);
+        });
+    });
 });
