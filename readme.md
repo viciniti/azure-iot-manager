@@ -3,9 +3,9 @@
 
 # Installing
 ``npm install azure-iot-manager``
-#Usage
+# Usage
 
-###Import
+### Import
 
 ES6
 
@@ -17,7 +17,7 @@ ES5
 
 #
 
-###Example
+### Example
 
 Instantiating manager instance
 
