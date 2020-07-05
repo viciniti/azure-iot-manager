@@ -1,6 +1,7 @@
 language: node_js
 node_js:
   - 14
-script: npm run prepublishOnly
-after_success:
+before_script:
+  - npm run prepublishOnly
+script:
   - npm run coverage
