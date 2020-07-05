@@ -33,5 +33,31 @@ const iotManager = azureIoTManager.init({ clientId: '***', subscriptionId: '***'
 
 const resourceGroup = iotManager.ResourceGroup.init(LocationCode.West_Europe, 'testResourceGroup');
 ```
+### Creating IoT Hub from resource group instance
+
+```
+const iotHub = await resourceGroup.createIoTHub(LocationCode.West_Europe, 1, TierCode.S1, 'testHub');
+```
+
+If you have already existing resource, do the following:
+
+```
+const dps = iotManager.DPS.initExisting('testDPS', 'testResourceGroup','testHub');
+```
+
+### Using connection strings
+
+Before doing some operation that requires connection string usage, please, make sure to call `generateConnectionString()` function on the instance to make sure
+that the string is generated(this is done, because it takes time for some resources to be in active state and calling this method from factory won't be good option).
+
+### Example
+
+```
+const iotHub = iotManager.IoTHub.initExisting('testHub', 'testResourceGroup');
+
+await iotHub.generateConnectionString();
+
+const dps = await iotHub.createDPS(LocationCode.West_Europe, TierCode.S1, 1, 'testDPS')
+```
 
 

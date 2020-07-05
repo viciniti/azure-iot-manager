@@ -88,7 +88,7 @@ export class Requests {
         const body = {
             location,
             sku: {
-                name: `${tier}-${name}`,
+                name: `${tier}`,
                 tier,
                 capacity
             }
@@ -159,7 +159,7 @@ export class Requests {
                 allocationPolicy: 'Hashed'
             },
             sku: {
-                name: `${tier}-${name}`,
+                name: `${tier}`,
                 tier,
                 capacity
             }

@@ -165,7 +165,7 @@ describe('requests test', () => {
     const hubBody = {
         location: LocationCode.Central_India,
         sku: {
-            name: `${TierCode.Free}-${'testHub'}`,
+            name: `${TierCode.Free}`,
             tier: TierCode.Free,
             capacity: 1
         }
@@ -192,7 +192,7 @@ describe('requests test', () => {
     const erroredBody = {
         location: LocationCode.Central_India,
         sku: {
-            name: `${TierCode.Free}-${'testHub'}`,
+            name: `${TierCode.Free}`,
             tier: TierCode.Free,
             capacity: 2
         }
@@ -256,7 +256,7 @@ describe('requests test', () => {
             allocationPolicy: 'Hashed'
         },
         sku: {
-            name: `${TierCode.Free}-testDPS`,
+            name: `${TierCode.Free}`,
             tier: TierCode.Free,
             capacity: 1
         }
@@ -287,7 +287,7 @@ describe('requests test', () => {
             subscriptionid: faker.random.uuid(),
             tags: {},
             sku: {
-                name: `${TierCode.Free}-testDPS`,
+                name: `${TierCode.Free}`,
                 tier: TierCode.Free,
                 capacity: 1
             }
@@ -319,7 +319,7 @@ describe('requests test', () => {
             allocationPolicy: 'Hashed'
         },
         sku: {
-            name: `${TierCode.Free}-testDPS`,
+            name: `${TierCode.Free}`,
             tier: TierCode.Free,
             capacity: 1
         }
@@ -380,7 +380,7 @@ describe('requests test', () => {
             subscriptionid: faker.random.uuid(),
             tags: {},
             sku: {
-                name: `${TierCode.Free}-testDPS`,
+                name: `${TierCode.Free}`,
                 tier: TierCode.Free,
                 capacity: 1
             }
