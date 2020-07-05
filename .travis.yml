@@ -1,1 +1,1 @@
-script: npm run prepublishOnly
+script: coverage
