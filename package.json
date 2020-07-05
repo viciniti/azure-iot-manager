@@ -1,6 +1,6 @@
 {
   "name": "azure-iot-manager",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "azure api wrapper, helping to create resources required to use Azure IoT",
   "main": "index.js",
   "types": "index.d.ts",
