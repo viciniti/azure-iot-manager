@@ -60,4 +60,4 @@ await iotHub.generateConnectionString();
 const dps = await iotHub.createDPS(LocationCode.West_Europe, TierCode.S1, 1, 'testDPS')
 ```
 
-
+#
