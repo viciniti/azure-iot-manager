@@ -3,6 +3,8 @@
 
 [![Coverage Status](https://coveralls.io/repos/github/viciniti/azure-iot-manager/badge.svg?branch=master)](https://coveralls.io/github/viciniti/azure-iot-manager?branch=master)
 
+[![Build Status](https://travis-ci.org/viciniti/azure-iot-manager.svg?branch=master)](https://travis-ci.org/viciniti/azure-iot-manager)
+
 # Installing
 ``npm install azure-iot-manager``
 # Usage

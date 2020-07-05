@@ -83,7 +83,7 @@ describe('requests test', () => {
 
     it('get token errored', async () => {
         sinon.restore();
-        sinon.stub(axios, 'post').withArgs(sinon.match(wrongUrl), sinon.match(wrongBody), sinon.match.any).resolves(Promise.resolve(serverErrorResponse));
+        sinon.stub(axios, 'post').withArgs(sinon.match(wrongUrl), sinon.match(qs.stringify(wrongBody)), sinon.match.any).resolves(Promise.resolve(serverErrorResponse));
         const request = new Requests(wrongClientConfig);
         expect(request.getClientToken()).to.eventually.be.rejectedWith('unauthorized_client').and.be.instanceOf(AuthenticationError).then((error) => {
             expect(error).to.have.property('description', serverErrorResponse.data.error_description);
