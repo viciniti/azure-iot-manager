@@ -10,7 +10,7 @@
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "lint": "tslint -p tsconfig.json",
     "watch:build": "tsc --watch",
-    "prepublishOnly": "tsc --declaration && npm test && npm run lint && nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
+    "prepublishOnly": "npm i && tsc --declaration && npm test && npm run lint && nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
   },
   "keywords": [],
   "author": "armanpiloyan",
