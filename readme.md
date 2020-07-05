@@ -11,7 +11,7 @@ ES6
 
 ``import * as azureIoTManager from 'azure-iot-manager';``
 
-ES5
+CommonJS
 
 ``const azureIoTManager = require('azure-iot-manager');``
 
