@@ -12,7 +12,16 @@
     "watch:build": "tsc --watch",
     "prepublishOnly": "npm i && tsc --declaration && npm test && npm run lint"
   },
-  "keywords": [],
+  "keywords": [
+    "azure",
+    "iot",
+    "typescript",
+    "sdk",
+    "dps",
+    "iot hub",
+    "node",
+    "arm"
+  ],
   "author": "armanpiloyan",
   "license": "MIT",
   "devDependencies": {
