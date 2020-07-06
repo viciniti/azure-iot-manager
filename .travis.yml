@@ -1,7 +1,11 @@
 language: node_js
 node_js:
   - 14
+install:
+  - gem install coveralls-lcov
 before_script:
   - npm run prepublishOnly
 script:
   - npm run coverage
+after_success:
+  - coveralls-lcov coverage/lcov.info
