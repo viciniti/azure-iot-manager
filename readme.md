@@ -1,5 +1,5 @@
 # Azure IoT manager
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 [![Coverage Status](https://coveralls.io/repos/github/viciniti/azure-iot-manager/badge.svg?branch=master)](https://coveralls.io/github/viciniti/azure-iot-manager?branch=master)
 
