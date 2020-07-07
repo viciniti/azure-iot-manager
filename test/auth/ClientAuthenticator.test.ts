@@ -14,7 +14,7 @@ describe('auth test', () => {
 
     const expiredAccessToken = faker.random.alphaNumeric(100);
 
-    it('get cached token', async () => {
+    it('get new token', async () => {
         const requests = new Requests(clientConfig);
         const expiredToken = new Token(expiredAccessToken, Date.now() - 10000);
         sinon.stub(requests, 'getClientToken').withArgs().resolves(expiredToken);
@@ -26,4 +26,17 @@ describe('auth test', () => {
         const response = await clientAuthentication.getTokenCached();
         expect(response).to.be.eql(expectedToken.accessToken);
     })
+
+    it('get cached token', async () => {
+        const requests = new Requests(clientConfig);
+        const normalToken = new Token(expiredAccessToken, Date.now() + 3599 * 1000);
+        sinon.stub(requests, 'getClientToken').withArgs().resolves(normalToken);
+        const clientAuthentication = new ClientAuthenticator(requests);
+        await clientAuthentication.getTokenCached();
+        sinon.restore();
+        const expectedToken = new Token(freshAccessToken, Date.now() + 3599 * 1000)
+        sinon.stub(requests, 'getClientToken').withArgs().resolves(expectedToken);
+        const response = await clientAuthentication.getTokenCached();
+        expect(response).to.be.eql(normalToken.accessToken);
+    });
 })
