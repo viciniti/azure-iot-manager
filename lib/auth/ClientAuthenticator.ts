@@ -32,7 +32,7 @@ export class ClientAuthenticator implements Authenticator {
      * returns token, cached, if one is not expired
      */
     public getTokenCached = async (): Promise<string | undefined> => {
-        if (!this.token || (this.token && this.isExpired())) {
+        if (!this.token || this.isExpired()) {
             this.token = await this.getToken();
         }
         return this.token?.accessToken;
